@@ -39,17 +39,17 @@ class Engine:
                 case "look":
                     print(self.rooms[self.gamestate.current_room].description)
                 case "move":
-                    if (len(tokens > 1)):
+                    if (len(tokens) > 1):
                         self.move(tokens[1])
                     else:
                         print("Please enter the name of a room.")
                 case "inspect":
-                    if (len(tokens > 1)):
+                    if (len(tokens) > 1):
                         self.inspect(tokens[1])
                     else:
                         print("Please enter the name of the item you want to inspect.")
                 case "use":
-                    if (len(tokens > 1)):
+                    if (len(tokens) > 1):
                         self.use(tokens[1])
                     else:
                         print("Please enter the name of the item you want to use.")
@@ -58,13 +58,13 @@ class Engine:
                 case "hint":
                     self.hint()
                 case "save":
-                    if (len(tokens > 1)):
+                    if (len(tokens) > 1):
                         self.save(tokens[1])
                     else:
                         print("Please enter a filename for your save file.")
                     self.save(tokens[1])
                 case "load":
-                    if (len(tokens > 1)):
+                    if (len(tokens) > 1):
                         self.load_save(tokens[1])
                     else:
                         print("Please enter the name of the file you want to load.")
