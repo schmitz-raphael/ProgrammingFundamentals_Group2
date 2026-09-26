@@ -1,5 +1,5 @@
 
-class Transcript:
+class Transcriptor:
     def __init__(self, filename):
         self.file = open(filename, "rw")
 
