@@ -1,7 +1,7 @@
 
-class Transcript:
+class Transcriptor:
     def __init__(self, filename):
-        self.file = open(filename, "rw")
+        self.file = open(filename, "w")
 
     def write_line(self, line):
         self.file.writelines(line)
