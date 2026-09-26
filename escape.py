@@ -5,7 +5,6 @@ from escaperoom.Engine.engine import Engine
 
 
 def main(argv):
-    print("Hello world")
     engine = Engine("run.txt")
     engine.play()
 

@@ -1,6 +1,12 @@
 
 from escaperoom.Engine.gamestate import GameState
+from escaperoom.rooms.intro import IntroRoom
+from escaperoom.rooms.malware import MalwareRoom
 from escaperoom.transcript import Transcriptor
+
+
+from dataclasses import dataclass, asdict
+import json
 
 class Engine:
 
@@ -13,11 +19,11 @@ class Engine:
 
     # TODO: Assign room instances once they're implemented
     def init_rooms(self):
-        self.rooms["intro"] = None
+        self.rooms["intro"] = IntroRoom()
         self.rooms["soc"] = None
         self.rooms["dns"] = None
         self.rooms["vault"] = None
-        self.rooms["malware"] = None
+        self.rooms["malware"] = MalwareRoom()
 
 
     def play(self):
@@ -33,17 +39,35 @@ class Engine:
                 case "look":
                     print(self.rooms[self.gamestate.current_room].description)
                 case "move":
-                    self.move(tokens[1])
+                    if (len(tokens > 1)):
+                        self.move(tokens[1])
+                    else:
+                        print("Please enter the name of a room.")
                 case "inspect":
-                    raise NotImplementedError
+                    if (len(tokens > 1)):
+                        self.inspect(tokens[1])
+                    else:
+                        print("Please enter the name of the item you want to inspect.")
                 case "use":
-                    self.use(tokens[1])
+                    if (len(tokens > 1)):
+                        self.use(tokens[1])
+                    else:
+                        print("Please enter the name of the item you want to use.")
                 case "inventory":
-                    print("Inventory: ", self.gamestate.inventory)
+                    self.print_inventory()
+                case "hint":
+                    self.hint()
                 case "save":
+                    if (len(tokens > 1)):
+                        self.save(tokens[1])
+                    else:
+                        print("Please enter a filename for your save file.")
                     self.save(tokens[1])
                 case "load":
-                    self.load_save(tokens[1])
+                    if (len(tokens > 1)):
+                        self.load_save(tokens[1])
+                    else:
+                        print("Please enter the name of the file you want to load.")
                 case "help":
                     self.help()
                 case _:
@@ -57,8 +81,9 @@ class Engine:
         print("inspect <item_name> - inspects the specified item in the current room")
         print("use <item_name> - uses the specified item in the current room")
         print("inventory - shows the items in your inventory")
+        print("hint - a small help if you're stuck")
         print("save <file> - saves the current game state to a file")
-        print("load <file>- loads a game state from a file")
+        print("load <file> - loads a game state from a file")
         print("quit - exits the game")
 
     def move(self, room_name):
@@ -75,8 +100,44 @@ class Engine:
         else:
             print("This room does not exist. Enter look")
 
-    def use(self, item_name):
-        if (self.rooms[self.gamestate.current_room] == item_name):
-            self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor)
+    def inspect(self, item_name):
+        try:
+            file_path = "escaperoom/data/" + item_name
+            if self.gamestate.current_room != "final":
+                self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor, file_path)
+        except:
+            print("You can't inspect this item in this room.")
+    def print_inventory(self):
+        print("Inventory:")
+        for item in self.gamestate.inventory:
+            print(f"- {item}")
+
+    def use(self, file_name: str):
+        if (self.gamestate.current_room == "final" and file_name == "gate"):
+            self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor, "finale_gate.txt")
         else:
-            print("You can't use this item in this room.")
+            print("You can't use this item here.")
+    def hint(self):
+        print(self.rooms[self.gamestate.current_room].hint)
+
+
+    def save(self, file_name):
+        try:
+            with open(file_name, "w") as f:
+                data = asdict(self.gamestate)
+                data["inventory"] = list(data["inventory"])
+                json.dump(data, f, indent=4)
+        except:
+            print("Error occured while saving")
+
+    def load_save(self, file_name):
+        try:
+            with open(file_name, "r") as f:
+                data = json.load(f)
+
+            data["inventory"] = set(data["inventory"])
+
+            self.gamestate = GameState(**data)
+
+        except Exception as e:
+            print(f"Error occurred while loading: {e}")
