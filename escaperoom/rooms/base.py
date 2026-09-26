@@ -10,10 +10,10 @@ class GameState:
     tokens: dict[str, str] = field(default_factory=dict)
 
 class Room:
-    def __init__(self, name: str, description: str, item: str):
+    def __init__(self, name: str, description: str, hint: str):
         self.name = name
         self.description = description
-        self.item = item
+        self.hint = hint
 
-    def solve(self, state: GameState, transcriptor: Transcriptor):
+    def solve(self, state: GameState, transcriptor: Transcriptor, item_name: str):
         raise NotImplementedError
