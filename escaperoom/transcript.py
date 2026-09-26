@@ -4,7 +4,8 @@ class Transcriptor:
         self.file = open(filename, "w")
 
     def write_line(self, line):
-        self.file.writelines(line)
+        self.file.writelines(line + "\n")
+        
 
     def save_file (self):
         self.file.close()
