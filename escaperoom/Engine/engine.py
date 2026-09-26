@@ -34,10 +34,18 @@ class Engine:
                     print(self.rooms[self.gamestate.current_room].description)
                 case "move":
                     self.move(tokens[1])
-                case "help":
-                    self.help()
+                case "inspect":
+                    raise NotImplementedError
+                case "use":
+                    self.use(tokens[1])
                 case "inventory":
                     print("Inventory: ", self.gamestate.inventory)
+                case "save":
+                    self.save(tokens[1])
+                case "load":
+                    self.load_save(tokens[1])
+                case "help":
+                    self.help()
                 case _:
                     print("Command not recognised. Enter 'help' to look for allowed commands")
         self.transcriptor.save_file()
@@ -66,3 +74,9 @@ class Engine:
                 self.gamestate.current_room = room_name
         else:
             print("This room does not exist. Enter look")
+
+    def use(self, item_name):
+        if (self.rooms[self.gamestate.current_room] == item_name):
+            self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor)
+        else:
+            print("You can't use this item in this room.")
