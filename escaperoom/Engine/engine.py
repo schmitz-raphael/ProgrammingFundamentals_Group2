@@ -3,6 +3,8 @@ from escaperoom.Engine.gamestate import GameState
 from escaperoom.rooms.intro import IntroRoom
 from escaperoom.rooms.malware import MalwareRoom
 from escaperoom.transcript import Transcriptor
+from escaperoom.rooms.soc import SOCRoom
+from escaperoom.rooms.vault import VaultRoom
 
 
 from dataclasses import dataclass, asdict
@@ -20,9 +22,9 @@ class Engine:
     # TODO: Assign room instances once they're implemented
     def init_rooms(self):
         self.rooms["intro"] = IntroRoom()
-        self.rooms["soc"] = None
+        self.rooms["soc"] = SOCRoom()
         self.rooms["dns"] = None
-        self.rooms["vault"] = None
+        self.rooms["vault"] = VaultRoom()
         self.rooms["malware"] = MalwareRoom()
 
 
