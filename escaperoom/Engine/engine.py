@@ -1,5 +1,6 @@
 
 from escaperoom.Engine.gamestate import GameState
+from escaperoom.rooms.dns import DNSRoom
 from escaperoom.rooms.intro import IntroRoom
 from escaperoom.rooms.malware import MalwareRoom
 from escaperoom.transcript import Transcriptor
@@ -23,7 +24,7 @@ class Engine:
     def init_rooms(self):
         self.rooms["intro"] = IntroRoom()
         self.rooms["soc"] = SOCRoom()
-        self.rooms["dns"] = None
+        self.rooms["dns"] = DNSRoom()
         self.rooms["vault"] = VaultRoom()
         self.rooms["malware"] = MalwareRoom()
 
@@ -109,6 +110,7 @@ class Engine:
                 self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor, file_path)
         except:
             print("You can't inspect this item in this room.")
+            
     def print_inventory(self):
         print("Inventory:")
         for item in self.gamestate.inventory:
