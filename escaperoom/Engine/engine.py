@@ -1,6 +1,7 @@
 
 from escaperoom.Engine.gamestate import GameState
 from escaperoom.rooms.dns import DNSRoom
+from escaperoom.rooms.gate import FinalGate
 from escaperoom.rooms.intro import IntroRoom
 from escaperoom.rooms.malware import MalwareRoom
 from escaperoom.transcript import Transcriptor
@@ -27,6 +28,7 @@ class Engine:
         self.rooms["dns"] = DNSRoom()
         self.rooms["vault"] = VaultRoom()
         self.rooms["malware"] = MalwareRoom()
+        self.rooms["final"] = FinalGate()
 
 
     def play(self):
@@ -118,7 +120,7 @@ class Engine:
 
     def use(self, file_name: str):
         if (self.gamestate.current_room == "final" and file_name == "gate"):
-            self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor, "finale_gate.txt")
+            self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor, "escaperoom/data/final_gate.txt")
         else:
             print("You can't use this item here.")
     def hint(self):
