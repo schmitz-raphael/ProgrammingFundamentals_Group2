@@ -1,3 +1,4 @@
+"""SOC Triage Desk Room finds the /24 subnet with the most failed SSH logins."""
 import re, ipaddress
 import random
 
@@ -9,48 +10,63 @@ from escaperoom.rooms.base import Room
 from escaperoom.transcript import Transcriptor
 
 class SOCRoom(Room):
+    """Room that parses the auth.log file and builds the KEYPAD token"""
+
     def __init__(self):
         super().__init__("soc", 
                          "You enter the SOC Triage Desk. \nA cluttered screen shows failed SSH login attempts. \nItems here: auth.log",
                          "Maybe it's worth checking the auth.log file.") 
         
     def solve(self, gamestate: GameState, transcriptor: Transcriptor, file_path: str):
+        """Parse the auth.log file, find the subnet with the most failed SSH logins and build the KEYPAD token.
+        
+        Args:
+            gamestate (GameState): Receives the token and inventory item.
+            transcriptor (Transcriptor): Writer for the transcript lines.
+            file_path (str): Path to the auth.log file.
+            
+            Returns:
+                None - Results are printed and written to the transcript and stored in gamestate.
+            """
+        
         try:
-            with open(file_path, "r", encoding="utf-8") as auth_log:
-                skipped_line = 0
-                failed_subnet = Counter()
-                subnet_ip = defaultdict(Counter)
-                sample_dic = defaultdict(list)
-
-                print("[Room SOC] Parsing logs...")
-                
-                #check for the valid Failed record and creating dictionaries/counters
-                for line in auth_log:
-                    #record form in file
-                    #<TIMESTAMP> <HOST> sshd[<PID>]: <Failed|Accepted> password for <USER> from <IPv4> port <PORT> protocol 2
-                    #       0       1       2               3               4     5    6    7      8    9     10      11    12
-                    words = line.split()
-
-                    if not self.valid_record(words):
-                        skipped_line += 1
-                        continue #count the skipped line and skip the rest of the loop
-
-                    status = words[3]
-                    ip = words[8]
-                    if status == "Failed":
-                        #subnet /24 out of ip                                    
-                        subnet = self.subnet_24(ip) 
-                        #dictionary/counter: group subnets and counting
-                        failed_subnet[subnet] += 1 #second option counter
-                        #dictionary/counter: subnet and counting same IP in each subnet
-                        subnet_ip[subnet][ip] +=1 #count ip within subnet
-                        #dictionary IP and lines that belongs to that IP - to extract sample
-                        sample_dic[ip].append(line.strip())   
+            auth_log = open(file_path, "r", encoding="utf-8")
         except OSError as error:
             print(f"[Room SOC] Cannot read {file_path}: {error}")
             return
+        
+        skipped_line = 0
+        failed_subnet = Counter()
+        subnet_ip = defaultdict(Counter)
+        sample_dic = defaultdict(list)
+
+        with auth_log:
+            print("[Room SOC] Parsing logs...")
+                
+            for line in auth_log:
+                #record form in file
+                #<TIMESTAMP> <HOST> sshd[<PID>]: <Failed|Accepted> password for <USER> from <IPv4> port <PORT> protocol 2
+                #       0       1       2               3               4     5    6    7      8    9     10      11    12
+                words = line.split()
+
+                if not self.valid_record(words):
+                    skipped_line += 1
+                    continue #count the skipped line and skip the rest of the loop
+
+                status = words[3]
+                ip = words[8]
+                if status == "Failed":
+                    #subnet /24 out of ip                                    
+                    subnet = self.subnet_24(ip) 
+                    #dictionary/counter: group subnets and counting
+                    failed_subnet[subnet] += 1
+                    #dictionary/counter: subnet and counting same IP in each subnet
+                    subnet_ip[subnet][ip] +=1
+                    #dictionary IP and lines that belongs to that IP - to extract sample
+                    sample_dic[ip].append(line.strip())   
+
         #find the largest failure subnet with the largest failure count (lfs)
-        top_subnet, count_lfs = failed_subnet.most_common(1)[0] #second option - counter
+        top_subnet, count_lfs = failed_subnet.most_common(1)[0] 
        
         #find the most frequent source IP inside that subnet
         top_ip = subnet_ip[top_subnet].most_common(1)[0][0]
@@ -64,17 +80,20 @@ class SOCRoom(Room):
         #generating token KEYPAD
         KEYPAD_token = f"{last_octet_top_ip}{count_lfs}"
 
-        #print results for the CLI
         self.CLI_results(top_ip, last_octet_top_ip, KEYPAD_token, top_subnet, count_lfs, sample_valid, skipped_line)
-               
-        #add transcripts
         self.transcript_lines(transcriptor, KEYPAD_token, top_subnet, count_lfs, sample_valid, skipped_line)
-        
-        #add the token and item to the gamestate
         self.add_to_gamestate(gamestate, "KEYPAD", KEYPAD_token)
 
-    #method to detect the valid record
     def valid_record(self, records):
+        """
+        Detect the valid record. Check that a split log line has required fields in correct form. 
+        
+        Args:
+            records (list[str]): The words in one log line
+
+        Returns:
+            bool: True if valid, False if malformed.
+        """
         return(
             len(records) == 13
             and self.timestamp_check(records[0])
@@ -121,8 +140,22 @@ class SOCRoom(Room):
     def last_octet(self, ip):
         return ip.split(".")[-1]
 
-    #print results for the CLI
     def CLI_results (self, top_ip, last_octet_top_ip, keypad_token, subnet_24, count_, sample, not_valid):
+        """
+        Print the results to the command line interface.
+                
+        Args:
+            top_ip (str): Most frequent IP address in the top subnet.
+            last_octet_top_ip (str): Last octet of the top IP address.      
+            keypad_token (str): KEYPAD token.
+            subnet_24 (str): The /24 subnet with the most failed SSH logins.
+            count_ (int): Total failed attempts in the top subnet.
+            sample (str): Sample failed-log line from top subnet.
+            not_valid (int): Number of malformed log lines skipped.
+                
+        Returns:
+            None
+        """
         print(f"{count_} failed attempts found in {subnet_24}")
         print(f"Top IP is {top_ip} (last octet={last_octet_top_ip})")
         print(f"Token formed: {keypad_token}")
