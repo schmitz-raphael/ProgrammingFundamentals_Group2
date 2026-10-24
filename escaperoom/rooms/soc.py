@@ -14,8 +14,9 @@ class SOCRoom(Room):
 
     def __init__(self):
         super().__init__("soc", 
-                         "You enter the SOC Triage Desk. \nA cluttered screen shows failed SSH login attempts. \nItems here: auth.log",
-                         "Maybe it's worth checking the auth.log file.") 
+                         "A cluttered screen shows failed SSH login attempts. \nItems here: auth.log",
+                         "Maybe it's worth checking the auth.log file.",
+                         "SOC Triage Desk") 
         
     def solve(self, gamestate: GameState, transcriptor: Transcriptor, file_path: str):
         """Parse the auth.log file, find the subnet with the most failed SSH logins and build the KEYPAD token.

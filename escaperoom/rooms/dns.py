@@ -12,13 +12,13 @@ class DNSRoom (Room):
             super().__init__(
                 "dns", 
                 "The walls are covered with scribbled key=value pairs.\nItems here: dns.cfg",
-                "Maybe it's worth checking the dns.cfg file."
+                "Maybe it's worth checking the dns.cfg file.",
+                "DNS Closet"
             )
 
 
     def solve(self, gameState: GameState, transcriptor: Transcriptor, file_path: str):
         # check if the file path corresponds to the dns file and if it's not exit the function
-        print(file_path.split("/")[-1] )
         if file_path.split("/")[-1] != "dns.cfg":
             print("There is no such item inside this room.")
             return
@@ -45,7 +45,12 @@ class DNSRoom (Room):
         token = self.extract_token(hint_record[1])
         #print the results
         print(f'Decoded line: "{hint_record[1]}"')
-        print(f"Token formed:" + token)
+        print(f"Token formed: " + token)
+        print()
+        print(f"TOKEN[DNS]={token}")
+        print(f"EVIDENCE[DNS].KEY={hint_id}")
+        print(f"EVIDENCE[DNS].ENCODING={hint_record[0]}")
+        print(f"EVIDENCE[DNS].DECODED_LINE={hint_record[1]}")
         #write to the transcript file 
         transcriptor.write_line(f"TOKEN[DNS]={token}")
         transcriptor.write_line(f"EVIDENCE[DNS].KEY={hint_id}")
