@@ -42,6 +42,7 @@ class Engine:
                     break
                 # Simply prints the room description of the room set in the gamestate  
                 case "look":
+                    print(f"You are in the {self.rooms[self.gamestate.current_room].full_title}")
                     print(self.rooms[self.gamestate.current_room].description)
                 case "move":
                     if (len(tokens) > 1):
@@ -102,6 +103,9 @@ class Engine:
             else:
                 #assign the current room to the room linked with the entered room name and save it to the gamestate
                 self.gamestate.current_room = room_name
+                #print the move description of the room and the actual description
+                print(f"You move to the {self.rooms[self.gamestate.current_room].move_description}")
+                print(self.rooms[self.gamestate.current_room].description)
         else:
             print("This room does not exist. Enter look")
 
