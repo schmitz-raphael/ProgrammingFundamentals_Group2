@@ -14,14 +14,14 @@ import json
 
 class Engine:
 
-    def __init__(self, transcript_name):
+    def __init__(self, transcript_name, start_room, data_dir):
         self.gamestate = GameState()
         self.transcriptor = Transcriptor(transcript_name)
         self.rooms = {}
         self.init_rooms()
+        self.data_dir = data_dir
+        self.gamestate.current_room = start_room
 
-
-    # TODO: Assign room instances once they're implemented
     def init_rooms(self):
         self.rooms["intro"] = IntroRoom()
         self.rooms["soc"] = SOCRoom()
@@ -107,7 +107,7 @@ class Engine:
 
     def inspect(self, item_name):
         try:
-            file_path = "escaperoom/data/" + item_name
+            file_path = "escaperoom/" + self.data_dir + "/" + item_name
             if self.gamestate.current_room != "final":
                 self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor, file_path)
         except:
@@ -120,7 +120,7 @@ class Engine:
 
     def use(self, file_name: str):
         if (self.gamestate.current_room == "final" and file_name == "gate"):
-            self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor, "escaperoom/data/final_gate.txt")
+            self.rooms[self.gamestate.current_room].solve(self.gamestate, self.transcriptor, "escaperoom/" + self.data_dir + "/final_gate.txt")
         else:
             print("You can't use this item here.")
     def hint(self):

@@ -10,7 +10,7 @@ def main(argv):
     parser.add_argument("--data", default="data")
     parser.add_argument("--transcript", default="run.txt")
     args = parser.parse_args(argv[1:])
-    engine = Engine(args.transcript)
+    engine = Engine(args.transcript, args.start, args.data)
     engine.play()
 
 
