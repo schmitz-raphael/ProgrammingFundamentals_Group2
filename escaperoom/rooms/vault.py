@@ -1,3 +1,4 @@
+"""Vault rooom: finds SAFE{a-b-c} candidate in the vault_dump.txt, where a+b=c."""
 import re
 
 from escaperoom.Engine.gamestate import GameState
@@ -14,11 +15,27 @@ class VaultRoom(Room):
     find_SAFE = re.compile(r"SAFE\s*\{\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+)\s*\}")
 
     def solve(self, gamestate: GameState, transcriptor: Transcriptor, file_path: str):
-        SAFE_token, sample, checksum = None, None, None        
+        
+        """
+        Find the SAFE{a-b-c} candidate that is a+b=c and record the results.
+        
+        Args:
+            gamestate (GameState): Receives the token and inventory item.
+            transcriptor (Transcriptor): Writer for the transcript lines.   
+            file_path (str): Path to vault_dump.txt.
+        
+        Returns:
+            None - Results are printed and written to the transcript and stored in gamestate.
+        """    
+        try:
+            vault_dump = open(file_path, "r", encoding="utf-8")
+        except OSError as error:
+            print(f"[Room Vault] Cannot read {file_path}: {error}")
+            return
         
         print("[Room Vault] Scanning dump...")
-        #using compiled regex
-        with open(file_path, "r", encoding="utf-8") as vault_dump:   
+        SAFE_token, sample, checksum = None, None, None
+        with vault_dump:   
             for line in vault_dump:
                 match = self.find_SAFE.search(line)
                 #searching for the candidate with a+b=c
@@ -29,20 +46,18 @@ class VaultRoom(Room):
                         checksum = f"{a}+{b}={c}"
                         sample = match.group(0)
                         break #first candidate satisfying the checksum
-        #print results for the CLI
+        
+        #no valid candidate found, SAFE_token is None
+        if SAFE_token is None:
+            print("[Room Vault] No valid candidate found.")
+            return
+        
         self.CLI_results(SAFE_token, sample, checksum)
-
-        #add transcripts
         self.transcript_lines(transcriptor, SAFE_token, sample, checksum)
-
-        #add the token and item to the gamestate
         self.add_to_gamestate(gamestate, "SAFE", SAFE_token)
 
     #print results for the CLI
     def CLI_results (self, SAFE_token, sample, checksum):
-        if SAFE_token is None:
-            print ("[Room Vault] No valid candidate found.")
-            return
         print(f"Found candidate: {sample}")
         print(f"Checksum: {checksum} (OK)")
         print(f"\nTOKEN[SAFE]={SAFE_token}")
