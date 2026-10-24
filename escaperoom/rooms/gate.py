@@ -10,7 +10,8 @@ class FinalGate (Room):
         super().__init__(
                         "gate", 
                         "You stand before the Final Gate. The console asks for proof.",
-                        "You must be in possession of all the tokens before proceeding."
+                        "You must be in possession of all the tokens before proceeding.",
+                        "Final Gate"
                     )
 
     def solve(self, gameState: GameState, transcriptor: Transcriptor, file_path: str):

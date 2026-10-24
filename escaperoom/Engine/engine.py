@@ -17,6 +17,7 @@ class Engine:
     def __init__(self, transcript_name, start_room, data_dir):
         self.gamestate = GameState()
         self.transcriptor = Transcriptor(transcript_name)
+        self.transcript_name = transcript_name
         self.rooms = {}
         self.init_rooms()
         self.data_dir = data_dir
@@ -34,11 +35,12 @@ class Engine:
     def play(self):
         print("[Game] Cyber Escape Room started. Type 'help' for commands.")
         while True:
+            print()
             command = input("> ")
             tokens = command.split()
             match tokens[0]:
                 case "quit":
-                    print("[Game] Goodbye. Transcript written to run.txt")
+                    print("[Game] Goodbye. Transcript written to", self.transcript_name)
                     break
                 # Simply prints the room description of the room set in the gamestate  
                 case "look":
@@ -104,7 +106,8 @@ class Engine:
                 #assign the current room to the room linked with the entered room name and save it to the gamestate
                 self.gamestate.current_room = room_name
                 #print the move description of the room and the actual description
-                print(f"You move to the {self.rooms[self.gamestate.current_room].move_description}")
+                if (room_name != "final"):
+                    print(f"You move to the {self.rooms[self.gamestate.current_room].full_title}.")
                 print(self.rooms[self.gamestate.current_room].description)
         else:
             print("This room does not exist. Enter look")

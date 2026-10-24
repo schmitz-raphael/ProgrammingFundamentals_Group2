@@ -9,8 +9,9 @@ class VaultRoom(Room):
     def __init__(self):
         super().__init__(
             "vault",
-            "You enter the Vault Corridor. \nA noisy dump scrolls past. Somewhere a SAFE{a-b-c} hides. \nItems here: vault_dump.txt",
-            "Maybe it's worth checking the vault_dump.txt file.")
+            "A noisy dump scrolls past. Somewhere a SAFE{a-b-c} hides. \nItems here: vault_dump.txt",
+            "Maybe it's worth checking the vault_dump.txt file.",
+            "Vault Corridor")
     #looking for pattern compiled once, reused for every line.
     find_SAFE = re.compile(r"SAFE\s*\{\s*(\d+)\s*-\s*(\d+)\s*-\s*(\d+)\s*\}")
 
