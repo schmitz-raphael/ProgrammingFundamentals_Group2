@@ -65,7 +65,11 @@ class SOCRoom(Room):
                     subnet_ip[subnet][ip] +=1
                     #dictionary IP and lines that belongs to that IP - to extract sample
                     sample_dic[ip].append(line.strip())   
-
+       
+        if not failed_subnet:
+            print("[Room SOC] No failed SSH login attempts found.")
+            return
+        
         #find the largest failure subnet with the largest failure count (lfs)
         top_subnet, count_lfs = failed_subnet.most_common(1)[0] 
        
