@@ -29,7 +29,10 @@ class SOCRoom(Room):
             Returns:
                 None - Results are printed and written to the transcript and stored in gamestate.
             """
-        
+        if file_path.split("/")[-1] != "auth.log":
+            print("There is no such item inside this room.")
+            return
+
         try:
             auth_log = open(file_path, "r", encoding="utf-8")
         except OSError as error:

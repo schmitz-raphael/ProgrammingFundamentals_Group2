@@ -28,6 +28,10 @@ class VaultRoom(Room):
         Returns:
             None - Results are printed and written to the transcript and stored in gamestate.
         """    
+        if file_path.split("/")[-1] != "vault_dump.txt":
+            print("There is no such item inside this room.")
+            return
+    
         try:
             vault_dump = open(file_path, "r", encoding="utf-8")
         except OSError as error:
